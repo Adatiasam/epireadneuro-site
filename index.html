@@ -1,0 +1,1314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Epiread Neurodiagnostics</title>
+<meta name="description" content="Epiread screens long term EEG for interictal epileptiform discharges at 60% recall with one false positive per hour, so epileptologists review minutes instead of hours.">
+<meta property="og:title" content="Epiread Neurodiagnostics">
+<meta property="og:description" content="Spike detection for the EEGs nobody has time to read.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://epireadneuro.com/">
+<meta property="og:image" content="https://epireadneuro.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Epiread: spike detection for the EEGs nobody has time to read">
+<link rel="canonical" href="https://epireadneuro.com/">
+<meta property="og:site_name" content="Epiread Neurodiagnostics">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://epireadneuro.com/og.png">
+<meta name="theme-color" content="#F5F6F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#181818" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3E%3Crect width=%2720%27 height=%2720%27 rx=%276%27 fill=%27%230D7A6F%27/%3E%3Cpolyline points=%273,11 6,11 7.5,8.5 9,14.5 10.6,4.5 12.2,13 13.6,11 17,11%27 fill=%27none%27 stroke=%27white%27 stroke-width=%271.6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #F5F6F5;
+  --surface: #FFFFFF;
+  --surface-2: #ECEFED;
+  --line: #DCE1DE;
+  --line-2: #C5CCC8;
+  --text: #0B0D0C;
+  --text-2: #444C48;
+  --text-3: #69716D;
+  --accent: #0D7A6F;
+  --accent-hover: #0A665D;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E0EFEB;
+  --detect: #CF4A36;
+  --detect-soft: rgba(207, 74, 54, 0.10);
+  --trace: #262C29;
+  --trace-dim: rgba(38, 44, 41, 0.38);
+  --grid: rgba(11, 13, 12, 0.05);
+  --grid-2: rgba(11, 13, 12, 0.11);
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-line: rgba(11, 13, 12, 0.08);
+  --scrim: rgba(245, 246, 245, 0.84);
+  --h-from: #000000;
+  --h-to: #666666;
+  --ok-bg: #DDF1EA;
+  --ok-fg: #0B6B57;
+  --warn-bg: #FBE9E4;
+  --warn-fg: #A63A28;
+  --pend-bg: #FBF1D9;
+  --pend-fg: #8A6410;
+  --shadow-1: 0 1px 2px rgba(11, 13, 12, 0.05), 0 4px 16px rgba(11, 13, 12, 0.05);
+  --shadow-2: 0 1px 2px rgba(11, 13, 12, 0.06), 0 24px 64px rgba(11, 13, 12, 0.09);
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-fast: cubic-bezier(0.2, 0, 0, 1);
+  --ease-pulse: cubic-bezier(0.45, 0, 0.55, 1);
+  --font: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #181818;
+    --surface: #1F1F1F;
+    --surface-2: #272727;
+    --line: #313131;
+    --line-2: #404040;
+    --text: #F1F3F2;
+    --text-2: #B3BAB6;
+    --text-3: #868D89;
+    --accent: #3FC1B0;
+    --accent-hover: #5DD0C1;
+    --accent-ink: #0A1A17;
+    --accent-soft: rgba(63, 193, 176, 0.12);
+    --detect: #F0745D;
+    --detect-soft: rgba(240, 116, 93, 0.14);
+    --trace: #CDD4D0;
+    --trace-dim: rgba(205, 212, 208, 0.34);
+    --grid: rgba(255, 255, 255, 0.04);
+    --grid-2: rgba(255, 255, 255, 0.10);
+    --glass: rgba(31, 31, 31, 0.72);
+    --glass-line: rgba(255, 255, 255, 0.08);
+    --scrim: rgba(24, 24, 24, 0.84);
+    --h-from: #FFFFFF;
+    --h-to: #9B9B9B;
+    --ok-bg: rgba(63, 193, 176, 0.14);
+    --ok-fg: #7FDCCF;
+    --warn-bg: rgba(240, 116, 93, 0.14);
+    --warn-fg: #F59A88;
+    --pend-bg: rgba(240, 190, 80, 0.14);
+    --pend-fg: #F1C66B;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
+    --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 24px 64px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #181818;
+  --surface: #1F1F1F;
+  --surface-2: #272727;
+  --line: #313131;
+  --line-2: #404040;
+  --text: #F1F3F2;
+  --text-2: #B3BAB6;
+  --text-3: #868D89;
+  --accent: #3FC1B0;
+  --accent-hover: #5DD0C1;
+  --accent-ink: #0A1A17;
+  --accent-soft: rgba(63, 193, 176, 0.12);
+  --detect: #F0745D;
+  --detect-soft: rgba(240, 116, 93, 0.14);
+  --trace: #CDD4D0;
+  --trace-dim: rgba(205, 212, 208, 0.34);
+  --grid: rgba(255, 255, 255, 0.04);
+  --grid-2: rgba(255, 255, 255, 0.10);
+  --glass: rgba(31, 31, 31, 0.72);
+  --glass-line: rgba(255, 255, 255, 0.08);
+  --scrim: rgba(24, 24, 24, 0.84);
+  --h-from: #FFFFFF;
+  --h-to: #9B9B9B;
+  --ok-bg: rgba(63, 193, 176, 0.14);
+  --ok-fg: #7FDCCF;
+  --warn-bg: rgba(240, 116, 93, 0.14);
+  --warn-fg: #F59A88;
+  --pend-bg: rgba(240, 190, 80, 0.14);
+  --pend-fg: #F1C66B;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 24px 64px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: 96px; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3, h4, p, figure, blockquote { margin: 0; }
+h1, h2, h3, h4 { text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+img { max-width: 100%; }
+[hidden]:not([hidden=until-found]) { display: none !important; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .wrap { padding: 0 32px; } }
+.mono { font-family: var(--mono); }
+
+.skip {
+  position: fixed; left: 16px; top: -64px; z-index: 200;
+  background: var(--text); color: var(--bg);
+  padding: 8px 12px; border-radius: 8px; font-size: 14px; line-height: 20px; font-weight: 600;
+  text-decoration: none;
+}
+.skip:focus { top: 16px; }
+
+.eyebrow {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font); font-size: 12px; line-height: 16px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3);
+}
+.eyebrow::before {
+  content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--accent);
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font); font-size: 16px; line-height: 24px; font-weight: 600;
+  padding: 8px 12px; border-radius: 9999px; border: 1px solid transparent;
+  text-decoration: none; cursor: pointer; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn svg { width: 16px; height: 16px; flex: none; }
+.btn-sm { font-size: 14px; line-height: 20px; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--line-2); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+@media (hover: hover) {
+  .btn-primary:not(:disabled):hover { background: var(--accent-hover); }
+  .btn-ghost:not(:disabled):hover { background: var(--surface-2); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn { transition: transform 100ms var(--ease-fast), background-color 150ms var(--ease-fast), border-color 150ms var(--ease-fast); }
+  .btn:not(:disabled):active { transform: scale(0.97); }
+  .btn-primary svg { transition: transform 500ms var(--ease); }
+  .btn-primary:not(:disabled):hover svg { transform: translateX(4px); }
+}
+
+.nav {
+  position: fixed; top: 24px; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: center; padding: 0 16px; pointer-events: none;
+}
+.pill {
+  pointer-events: auto;
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 4px 4px 16px; border-radius: 9999px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--shadow-1);
+}
+.brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.01em;
+  text-decoration: none; color: var(--text); padding: 8px 8px 8px 0; cursor: pointer;
+}
+.brand svg { width: 20px; height: 20px; flex: none; }
+.links { display: flex; gap: 4px; }
+.links a {
+  font-size: 14px; line-height: 20px; color: var(--text-2); text-decoration: none;
+  padding: 8px 12px; border-radius: 9999px; cursor: pointer;
+  transition: color 150ms var(--ease-fast), background-color 150ms var(--ease-fast);
+}
+.links a[aria-current="true"] { color: var(--text); background: var(--surface-2); }
+@media (hover: hover) { .links a:hover { color: var(--text); background: var(--surface-2); } }
+.burger {
+  display: none; position: relative; width: 40px; height: 40px; border-radius: 9999px;
+  border: 0; background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.burger span {
+  position: absolute; left: 12px; right: 12px; height: 2px; border-radius: 2px; background: var(--text);
+  transition: transform 500ms var(--ease);
+}
+.burger span:nth-child(1) { top: 15px; }
+.burger span:nth-child(2) { top: 23px; }
+.burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(4px) rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(2) { transform: translateY(-4px) rotate(-45deg); }
+
+.menu {
+  position: fixed; inset: 0; z-index: 90;
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(40px) saturate(160%);
+  backdrop-filter: blur(40px) saturate(160%);
+  display: flex; flex-direction: column; justify-content: center; gap: 8px;
+  padding: 96px 24px 48px;
+  opacity: 0; visibility: hidden;
+  transition: opacity 500ms var(--ease), visibility 0s linear 500ms;
+  overscroll-behavior: contain;
+}
+.menu.open { opacity: 1; visibility: visible; transition: opacity 500ms var(--ease); }
+.menu a {
+  font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em;
+  color: var(--text); text-decoration: none; padding: 8px 0; cursor: pointer;
+  opacity: 0; transform: translateY(48px);
+  transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+}
+.menu .btn { align-self: flex-start; margin-top: 24px; opacity: 0; transform: translateY(48px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
+.menu a.btn { font-size: 16px; line-height: 24px; letter-spacing: 0; padding: 8px 12px; }
+.menu.open a, .menu.open .btn { opacity: 1; transform: none; }
+.menu.open > :nth-child(1) { transition-delay: 100ms; }
+.menu.open > :nth-child(2) { transition-delay: 150ms; }
+.menu.open > :nth-child(3) { transition-delay: 200ms; }
+.menu.open > :nth-child(4) { transition-delay: 250ms; }
+.menu.open > :nth-child(5) { transition-delay: 300ms; }
+.menu.open > :nth-child(6) { transition-delay: 350ms; }
+.menu.open > :nth-child(7) { transition-delay: 400ms; }
+@media (max-width: 899px) {
+  .links, .pill > .btn { display: none; }
+  .burger { display: block; }
+  .pill { width: 100%; max-width: 480px; justify-content: space-between; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .pill { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .menu { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+.hero { padding: 96px 0 64px; }
+@media (min-width: 768px) { .hero { padding: 96px 0 80px; } }
+.hero-copy { max-width: 680px; padding-top: 32px; }
+@media (min-width: 768px) { .hero-copy { padding-top: 64px; } }
+.grad {
+  background: linear-gradient(90deg, var(--h-from), var(--h-to));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.hero h1 {
+  margin-top: 24px;
+  font-size: 36px; line-height: 40px; font-weight: 600; letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.hero h1 .line { display: block; padding-bottom: 4px; }
+@media (min-width: 768px) { .hero h1 { font-size: 48px; line-height: 1; } }
+.hero .sub {
+  margin-top: 24px; max-width: 680px;
+  font-size: 18px; line-height: 28px; color: var(--text-2); text-wrap: pretty;
+}
+.cta-row { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.proof {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; line-height: 20px; color: var(--text-3);
+}
+.proof::before { content: ""; width: 6px; height: 6px; border-radius: 9999px; background: var(--accent); flex: none; }
+
+.scope {
+  margin-top: 48px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+  box-shadow: var(--shadow-2);
+}
+@media (min-width: 768px) { .scope { margin-top: 64px; } }
+.scope-bar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+  font-family: var(--mono); font-size: 12px; line-height: 16px; color: var(--text-3);
+}
+.scope-bar .grp { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.scope-bar b { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+.scope-bar .flag b { color: var(--detect); }
+@media (max-width: 639px) { .scope-bar .hide-sm { display: none; } }
+.rec { display: inline-flex; align-items: center; gap: 8px; color: var(--text-2); }
+.rec::before { content: ""; width: 8px; height: 8px; border-radius: 9999px; background: var(--detect); }
+@media (prefers-reduced-motion: no-preference) {
+  .rec::before { animation: rec 1600ms var(--ease-pulse) infinite; }
+}
+@keyframes rec { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+#hero-eeg { display: block; width: 100%; height: 288px; touch-action: pan-y; }
+@media (min-width: 768px) { #hero-eeg { height: 384px; } }
+.scope-cap { margin-top: 12px; font-size: 12px; line-height: 16px; color: var(--text-3); max-width: 680px; text-wrap: pretty; }
+
+.sec { padding: 64px 0; }
+@media (min-width: 768px) { .sec { padding: 96px 0; } }
+.sec-alt { background: var(--surface); }
+.sec-head { max-width: 680px; display: grid; gap: 16px; margin-bottom: 48px; }
+.sec h2 {
+  font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; text-wrap: balance;
+}
+@media (min-width: 768px) { .sec h2 { font-size: 36px; line-height: 40px; letter-spacing: -0.025em; } }
+.lead { font-size: 18px; line-height: 28px; color: var(--text-2); text-wrap: pretty; }
+
+.cells {
+  display: grid; gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+}
+.cells-3 { grid-template-columns: repeat(3, 1fr); }
+.cells-4 { grid-template-columns: repeat(4, 1fr); }
+.cell { background: var(--surface); padding: 32px 24px; display: flex; flex-direction: column; gap: 8px; }
+.sec-alt .cell { background: var(--bg); }
+.cell .n {
+  font-size: 48px; line-height: 1; font-weight: 600; letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.cell .n small { font-size: 24px; line-height: 32px; font-weight: 500; letter-spacing: -0.01em; color: var(--text-3); margin-left: 4px; }
+.cell .n.ac { color: var(--accent); }
+.cell .l { font-size: 14px; line-height: 20px; color: var(--text-2); text-wrap: pretty; }
+.cell .s { margin-top: auto; padding-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-3); }
+@media (max-width: 899px) { .cells-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 639px) { .cells-3, .cells-4 { grid-template-columns: 1fr; } .cell { padding: 24px; } }
+
+.groups { margin-top: 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.group h3 { font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 16px; }
+.item { padding: 16px 0; border-top: 1px solid var(--line); }
+.item p { color: var(--text-2); text-wrap: pretty; }
+.item strong { color: var(--text); font-weight: 600; }
+.cite { display: block; margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-3); }
+@media (max-width: 767px) { .groups { grid-template-columns: 1fr; gap: 32px; } }
+
+.tagline { padding: 96px 0; }
+.tagline p {
+  max-width: 880px; font-size: 36px; line-height: 40px; font-weight: 600; letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+@media (min-width: 768px) { .tagline p { font-size: 48px; line-height: 1; letter-spacing: -0.03em; } }
+.tagline .w { display: inline; color: var(--text); }
+.tagline .w.ac { color: var(--accent); }
+
+.feats { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.feat { padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); }
+.feat h3 { font-size: 16px; line-height: 24px; font-weight: 600; }
+.feat p { margin-top: 8px; font-size: 14px; line-height: 20px; color: var(--text-2); text-wrap: pretty; }
+@media (max-width: 767px) { .feats { grid-template-columns: 1fr; } }
+
+.cmp { margin-top: 64px; }
+.cmp h3 { font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 16px; }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); }
+.tbl table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px; line-height: 20px; }
+.tbl th {
+  text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line);
+  font-size: 12px; line-height: 16px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3);
+}
+.tbl td { padding: 16px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--text-2); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td:first-child { color: var(--text); font-weight: 500; width: 24%; }
+.tbl .us { background: var(--accent-soft); }
+.tbl th.us { color: var(--accent); }
+.tbl .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tbl .bad { color: var(--detect); font-weight: 500; }
+.tbl .good { color: var(--accent); font-weight: 600; }
+.note { margin-top: 12px; font-size: 14px; line-height: 20px; color: var(--text-3); max-width: 880px; text-wrap: pretty; }
+
+.quote { margin-top: 64px; max-width: 880px; }
+.quote .mark { display: block; font-size: 60px; line-height: 1; font-weight: 600; color: var(--accent); height: 32px; }
+.quote blockquote p { font-size: 24px; line-height: 32px; font-weight: 500; letter-spacing: -0.015em; text-wrap: balance; }
+@media (min-width: 768px) { .quote blockquote p { font-size: 30px; line-height: 36px; letter-spacing: -0.02em; } }
+.quote figcaption { margin-top: 24px; display: grid; gap: 4px; }
+.quote figcaption b { font-size: 14px; line-height: 20px; font-weight: 600; }
+.quote figcaption span { font-size: 12px; line-height: 16px; color: var(--text-3); }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.step {
+  padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.step .k { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; line-height: 16px; color: var(--accent); }
+.step h3 { font-size: 18px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.step p { font-size: 14px; line-height: 20px; color: var(--text-2); text-wrap: pretty; }
+.step .spec {
+  margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 12px; line-height: 16px; color: var(--text-3);
+}
+@media (max-width: 899px) { .steps { grid-template-columns: 1fr; } }
+
+.team { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.tm {
+  padding: 32px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg);
+  display: flex; flex-direction: column; gap: 16px;
+}
+.tm-name { font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.02em; }
+.tm-role { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--accent); margin-top: 4px; }
+.tm-bio { color: var(--text-2); text-wrap: pretty; }
+.tm-foot { margin-top: auto; display: grid; gap: 16px; }
+.creds { display: flex; flex-wrap: wrap; gap: 8px; }
+.cr {
+  font-size: 12px; line-height: 16px; color: var(--text-2);
+  padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px;
+}
+.tm-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.tm-stats strong { display: block; font-size: 20px; line-height: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tm-stats span { font-size: 12px; line-height: 16px; color: var(--text-3); }
+@media (max-width: 767px) { .team { grid-template-columns: 1fr; } .tm { padding: 24px; } }
+
+.faq { max-width: 880px; border-bottom: 1px solid var(--line); }
+.faq details { border-top: 1px solid var(--line); }
+.faq summary {
+  list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 24px 0; cursor: pointer; font-size: 18px; line-height: 28px; font-weight: 500;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.plus { position: relative; width: 16px; height: 16px; flex: none; }
+.plus::before, .plus::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 7px; height: 2px; border-radius: 2px; background: var(--text-3);
+}
+.plus::after { transform: rotate(90deg); }
+@media (prefers-reduced-motion: no-preference) { .plus { transition: transform 500ms var(--ease); } }
+.faq details[open] .plus { transform: rotate(45deg); }
+.faq .ans { padding: 0 40px 24px 0; max-width: 720px; color: var(--text-2); text-wrap: pretty; }
+
+.final {
+  padding: 48px 24px; border: 1px solid var(--line); border-radius: 24px; background: var(--surface);
+  display: grid; gap: 24px; justify-items: start;
+}
+@media (min-width: 768px) { .final { padding: 64px; } }
+.final h2 { max-width: 680px; }
+.final .lead { max-width: 680px; }
+
+.foot { border-top: 1px solid var(--line); padding: 48px 0; }
+.foot-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 32px; }
+.foot .entity { margin-top: 8px; font-size: 14px; line-height: 20px; color: var(--text-2); }
+.foot .entity a { color: var(--accent); text-decoration: none; }
+@media (hover: hover) { .foot .entity a:hover { text-decoration: underline; text-underline-offset: 4px; } }
+.faq .ans a { color: var(--accent); }
+.foot nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.foot nav a { font-size: 14px; line-height: 20px; color: var(--text-2); text-decoration: none; cursor: pointer; }
+@media (hover: hover) { .foot nav a:hover { color: var(--text); } }
+.foot-bot {
+  margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px;
+  font-size: 12px; line-height: 16px; color: var(--text-3);
+}
+.foot-bot nav a { font-size: 12px; line-height: 16px; color: var(--text-3); }
+.legal { display: grid; gap: 32px; }
+.legal > * { max-width: 720px; }
+.legal h2 { font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.legal p, .legal li { color: var(--text-2); }
+.legal ul { margin: 0; padding-left: 24px; display: grid; gap: 8px; }
+.legal section { display: grid; gap: 12px; }
+.legal .upd { font-size: 14px; line-height: 20px; color: var(--text-3); }
+
+.page-head { padding: 96px 0 48px; }
+.page-head .wrap { padding-top: 32px; }
+@media (min-width: 768px) { .page-head .wrap { padding-top: 64px; } }
+.page-head h1 {
+  margin-top: 24px; font-size: 36px; line-height: 40px; font-weight: 600; letter-spacing: -0.03em; text-wrap: balance;
+}
+@media (min-width: 768px) { .page-head h1 { font-size: 48px; line-height: 1; } }
+.page-head p { margin-top: 16px; max-width: 680px; font-size: 18px; line-height: 28px; color: var(--text-2); text-wrap: pretty; }
+
+.pub-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; margin-bottom: 24px; }
+.pub-header h3 { font-size: 20px; line-height: 28px; font-weight: 600; }
+.pub-header a { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--accent); text-decoration: none; display: inline-flex; gap: 4px; align-items: center; }
+.pub-header a svg { width: 14px; height: 14px; }
+@media (hover: hover) { .pub-header a:hover { text-decoration: underline; text-underline-offset: 4px; } }
+.pgrid { display: grid; gap: 8px; }
+.pc {
+  display: grid; grid-template-columns: 56px 1fr 16px; gap: 16px; align-items: start;
+  padding: 16px 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+  text-decoration: none; color: inherit;
+  transition: border-color 150ms var(--ease-fast);
+}
+@media (hover: hover) { a.pc:hover { border-color: var(--accent); } }
+.pc-yr { font-family: var(--mono); font-size: 14px; line-height: 24px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.pc-t { font-size: 16px; line-height: 24px; font-weight: 500; text-wrap: pretty; }
+.pc-m { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--text-2); }
+.pc-a { margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--text-3); }
+.pc-s {
+  display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 9999px;
+  font-size: 12px; line-height: 16px; font-weight: 500; background: var(--accent-soft); color: var(--accent);
+}
+.pc-go { width: 16px; height: 16px; margin-top: 4px; color: var(--text-3); }
+@media (max-width: 639px) { .pc { grid-template-columns: 1fr; gap: 4px; padding: 16px; } .pc-go { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
+  .menu a, .menu .btn { transform: none; }
+}
+</style>
+</head>
+<body>
+
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="pill">
+    <a class="brand" data-page="home" href="#top" aria-label="Epiread home">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="6" fill="var(--accent)"/><polyline points="3,11 6,11 7.5,8.5 9,14.5 10.6,4.5 12.2,13 13.6,11 17,11" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Epiread
+    </a>
+    <nav class="links" aria-label="Primary">
+      <a data-go="problem" href="#problem">Problem</a>
+      <a data-go="approach" href="#approach">Approach</a>
+      <a data-go="how" href="#how">How it works</a>
+      <a data-go="team" href="#team">Team</a>
+      <a data-page="pub" href="#publications">Publications</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="mailto:hello@epireadneuro.com">Talk to the team</a>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="menu" id="menu" aria-hidden="true">
+  <a data-go="problem" href="#problem">Problem</a>
+  <a data-go="approach" href="#approach">Approach</a>
+  <a data-go="how" href="#how">How it works</a>
+  <a data-go="team" href="#team">Team</a>
+  <a data-go="faq" href="#faq">Questions</a>
+  <a data-page="pub" href="#publications">Publications</a>
+  <a class="btn btn-primary" href="mailto:hello@epireadneuro.com">Talk to the team
+    <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+  </a>
+</div>
+
+<main id="main">
+<div id="pg-home">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-copy">
+      <p class="eyebrow">Automated IED detection for clinical EEG</p>
+      <h1><span class="line grad">Spike detection for the EEGs</span><span class="line grad">nobody has time to read</span></h1>
+      <p class="sub">Epiread screens hours of long term EEG in seconds and flags interictal epileptiform discharges at 60% recall with one false positive per hour. That is a rate a clinician can actually work with.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="mailto:hello@epireadneuro.com">Talk to the team
+          <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+        </a>
+        <span class="proof">Built on clinical EEG from a tertiary epilepsy centre</span>
+      </div>
+    </div>
+
+    <div class="scope">
+      <div class="scope-bar">
+        <div class="grp">
+          <span class="rec">Screening</span>
+          <span class="hide-sm">Longitudinal bipolar</span>
+          <span class="hide-sm">8 ch</span>
+          <span class="hide-sm">128 Hz</span>
+        </div>
+        <div class="grp" aria-live="off">
+          <span class="flag">Flagged <b id="sc-flag">0</b></span>
+          <span>Artifacts passed <b id="sc-art">0</b></span>
+          <span class="hide-sm">Threshold <b>p &ge; 0.78</b></span>
+        </div>
+      </div>
+      <canvas id="hero-eeg" role="img" aria-label="Illustrative eight channel EEG scrolling past a reading line. Discharges in the left temporal channels are flagged with a probability; an eye blink in the frontal channels passes without a flag."></canvas>
+    </div>
+    <p class="scope-cap">Simulated EEG for illustration. Discharges in the left temporal chain, with phase reversal at T3, are flagged. A frontal eye blink is not.</p>
+  </div>
+</section>
+
+<section class="sec" id="problem">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">The problem</p>
+      <h2>The bottleneck is not the recording. It is who reads it, and for how long.</h2>
+      <p class="lead">Epilepsy diagnosis depends on catching interictal spikes in EEG. The recordings exist. The specialist hours to read them do not.</p>
+    </div>
+
+    <div class="cells cells-3" data-reveal>
+      <div class="cell"><div class="n">50M</div><div class="l">people live with epilepsy worldwide</div><div class="s">WHO</div></div>
+      <div class="cell"><div class="n">11%</div><div class="l">sensitivity of a first routine EEG after a first unprovoked seizure</div><div class="s">Hernandez-Ronquillo et al., 2023</div></div>
+      <div class="cell"><div class="n">0.49<small>&kappa;</small></div><div class="l">agreement between expert readers on individual discharges</div><div class="s">Jing et al., 2020</div></div>
+    </div>
+
+    <div class="groups">
+      <div class="group" data-reveal>
+        <h3>Not enough readers</h3>
+        <div class="item"><p><strong>Specialist neurological care in India sits in the major cities.</strong> District and tier 2 hospitals often have EEG machines but no one trained to interpret the recordings.</p></div>
+        <div class="item"><p><strong>The WHO African region has a median of 0.1 neurological specialists per 100,000 people.</strong> High income countries have 7.1, roughly seventy times as many.</p><span class="cite">WHO and World Federation of Neurology, Neurology Atlas, 2017</span></div>
+      </div>
+      <div class="group" data-reveal>
+        <h3>Not enough time</h3>
+        <div class="item"><p><strong>A first routine EEG caught IEDs or seizures in only 11% of adults after a first unprovoked seizure.</strong> A 24 hour ambulatory recording reached 72%, but that is 24 hours of signal someone has to read.</p><span class="cite">Hernandez-Ronquillo et al., Neurology: Clinical Practice, 2023</span></div>
+        <div class="item"><p><strong>Interictal activity follows multiday cycles, most often 20 to 30 days long.</strong> A single short EEG is a snapshot at a random point in that cycle. Long term monitoring captures what short recordings miss by design.</p><span class="cite">Baud et al., Nature Communications, 2018</span></div>
+        <div class="item"><p><strong>Even experts disagree.</strong> Eight expert readers scoring 13,262 candidate waveforms agreed on individual discharges with a &kappa; of only 0.49. Artifacts mimic spikes, and morphology varies widely across patients.</p><span class="cite">Jing et al., JAMA Neurology, 2020</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tagline" aria-label="Our position">
+  <div class="wrap">
+    <p id="tag-text">The goal is not to replace the epileptologist. It is to make sure their hours go to the recordings that matter.</p>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="approach">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Our approach</p>
+      <h2>A clinician reviews minutes instead of hours</h2>
+      <p class="lead">Epiread screens the full recording automatically and surfaces only the segments most likely to contain spikes. The operating point is chosen for the reading room, not the leaderboard.</p>
+    </div>
+
+    <div class="cells cells-4" data-reveal>
+      <div class="cell"><div class="n ac">60%</div><div class="l">recall at one false positive per hour</div></div>
+      <div class="cell"><div class="n ac">1<small>/hr</small></div><div class="l">false positive rate at that recall</div></div>
+      <div class="cell"><div class="n">8,000+</div><div class="l">clinical EEGs in the data pipeline</div></div>
+      <div class="cell"><div class="n">2,000+</div><div class="l">24 hour recordings collected</div></div>
+    </div>
+
+    <div class="feats">
+      <div class="feat" data-reveal><h3>A low false alarm rate is the point</h3><p>A detector that raises dozens of false alarms per hour creates more work than it saves. At one per hour, every flag is worth a look, and the output fits a real clinical workflow without alert fatigue.</p></div>
+      <div class="feat" data-reveal><h3>Trained on clinical data, not benchmarks</h3><p>All training data comes from a tertiary epilepsy centre: real patients, real noise, real artifacts. No clean room recordings that fall apart on ward data.</p></div>
+      <div class="feat" data-reveal><h3>Every detection is explainable</h3><p>The model reports which channels and temporal features drove each detection, so the reviewer knows where to look and can override with confidence.</p></div>
+      <div class="feat" data-reveal><h3>Built for the settings that need it most</h3><p>Compact enough to run in resource constrained hospitals. The epilepsy burden is highest where specialist access is lowest, and the model is sized for that.</p></div>
+    </div>
+
+    <div class="cmp" data-reveal>
+      <h3>How this differs from the FDA cleared standard</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th scope="col"><span class="sr-only">Measure</span></th><th scope="col">Persyst P15</th><th scope="col" class="us">Epiread</th></tr></thead>
+          <tbody>
+            <tr><td>Evidence</td><td>Cook et al., 2026: 484 routine EEGs at a tertiary centre</td><td class="us">Internal validation on clinical EEG</td></tr>
+            <tr><td>Unit of analysis</td><td>Whole recording</td><td class="us">Individual discharge</td></tr>
+            <tr><td>Sensitivity</td><td class="num">81.1%</td><td class="num us">60%</td></tr>
+            <tr><td>False alarms</td><td class="bad">Flagged 40.1% of recordings with no IEDs</td><td class="good us">1 per hour of recording</td></tr>
+            <tr><td>Explanation per detection</td><td>Not assessed in the study</td><td class="us">Channels and temporal features behind each flag</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">The two columns come from different studies and different units of analysis, so this is not a head to head comparison. In Cook et al., only 19.9% of the recordings Persyst flagged were confirmed by the clinical report. Epiread is tuned the other way: lower peak sensitivity in exchange for a false alarm rate a reader can work with.</p>
+    </div>
+
+    <figure class="quote" data-reveal>
+      <span class="mark" aria-hidden="true">&ldquo;</span>
+      <blockquote><p>The value isn't catching every spike. It's making sure a 24-hour recording gets reviewed at all, in a center that otherwise wouldn't have the bandwidth.</p></blockquote>
+      <figcaption><b>Dr. Neeraj Baheti</b><span>Comprehensive Epilepsy Care Centre, CIIMS Nagpur</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">How it works</p>
+      <h2>From a raw recording to a short review list</h2>
+      <p class="lead">Every recording goes through the same three stages before a clinician sees it.</p>
+    </div>
+    <ol class="steps" style="list-style:none;margin:0;padding:0">
+      <li class="step" data-reveal>
+        <span class="k">01</span>
+        <h3>Load the recording</h3>
+        <p>Recordings arrive as EDF or FIF from any 10&ndash;20 setup. Channels are mapped to the 19 standard electrodes and rebuilt into bipolar and average reference montages.</p>
+        <span class="spec">EDF &middot; FIF &middot; 19 electrodes</span>
+      </li>
+      <li class="step" data-reveal>
+        <span class="k">02</span>
+        <h3>Screen every window</h3>
+        <p>The signal is bandpass filtered, notched for mains hum and resampled. The detector scores each window and keeps only those above its operating threshold.</p>
+        <span class="spec">0.5 to 45 Hz &middot; 50/60 Hz notch &middot; 128 Hz</span>
+      </li>
+      <li class="step" data-reveal>
+        <span class="k">03</span>
+        <h3>Review what matters</h3>
+        <p>Flagged segments open in a paging viewer next to the original annotations. The epileptologist confirms or rejects each one, and the decision stays clinical.</p>
+        <span class="spec">Flag at p &ge; 0.78 &middot; 5 to 60 s pages</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="team">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Team</p>
+      <h2>Clinical access and signal processing, in one room</h2>
+      <p class="lead">Epiread pairs direct access to clinical EEG and expert annotation with the machine learning to build on it.</p>
+    </div>
+    <div class="team">
+      <article class="tm" data-reveal>
+        <div>
+          <h3 class="tm-name">Dr. Neeraj Baheti</h3>
+          <p class="tm-role">Chief Medical Officer and Epileptologist</p>
+        </div>
+        <p class="tm-bio">Founded Central India's first epilepsy surgery program at CIIMS Nagpur. Convenor of the Indian Epilepsy Society's EEG Task Force. His clinical network, with more than 700 professionals trained each year across international programs, is the data access and annotation backbone of Epiread.</p>
+        <div class="tm-foot">
+          <div class="creds"><span class="cr">DM Neurology, SCTIMST</span><span class="cr">Fellowship in Epilepsy</span><span class="cr">MBBS &amp; MD Gold Medalist</span></div>
+          <div class="tm-stats">
+            <div><strong>45+</strong><span>peer reviewed publications</span></div>
+            <div><strong>27</strong><span>h index, 950+ citations</span></div>
+            <div><strong>700+</strong><span>professionals trained yearly</span></div>
+          </div>
+        </div>
+      </article>
+      <article class="tm" data-reveal>
+        <div>
+          <h3 class="tm-name">Samarth Adatia</h3>
+          <p class="tm-role">Cofounder and AI Lead</p>
+        </div>
+        <p class="tm-bio">B.Tech in Electrical Engineering and M.Tech in Signal Processing and Machine Learning from IIT Kharagpur. ML researcher at Stanford Medicine. Designed and built the full pipeline: data ingestion, preprocessing, model architecture, training infrastructure and clinical validation tooling.</p>
+        <div class="tm-foot">
+          <div class="creds"><span class="cr">IIT Kharagpur, EE + SP&amp;ML</span><span class="cr">Stanford Medicine</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Questions</p>
+      <h2>What people ask first</h2>
+    </div>
+    <div class="faq" data-reveal>
+      <details>
+        <summary>Does Epiread replace the epileptologist?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="ans">No. It decides what gets looked at first. Every flag is reviewed by a clinician, who confirms or rejects it, and the diagnosis stays with them.</p>
+      </details>
+      <details>
+        <summary>Is it approved for clinical use?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="ans">Not yet. Epiread is in development and is being prepared for review by CDSCO as Software as a Medical Device. Until then it is for research and evaluation only.</p>
+      </details>
+      <details>
+        <summary>Which recordings does it work with?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="ans">EDF and MNE FIFF recordings with any channel naming. Channels are mapped to the 19 electrodes of the 10&ndash;20 system, and recordings that are already montaged run directly.</p>
+      </details>
+      <details>
+        <summary>What hardware does it need?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="ans">Ordinary CPU hardware. The model is small enough to run without a GPU, which matters for the hospitals that need it most.</p>
+      </details>
+      <details>
+        <summary>Who built it?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="ans">An epileptologist and a signal processing engineer in India, working from clinical EEG recorded at a tertiary epilepsy centre and annotated by specialists.</p>
+      </details>
+      <details>
+        <summary>How do I get in touch?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="ans">Write to <a href="mailto:hello@epireadneuro.com">hello@epireadneuro.com</a>. We read every message and reply from the team directly.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="final" data-reveal>
+      <p class="eyebrow">Get in touch</p>
+      <h2>Running an EEG service or an epilepsy programme?</h2>
+      <p class="lead">We would like to hear how your team reviews long term recordings today, and where the hours go.</p>
+      <a class="btn btn-primary" href="mailto:hello@epireadneuro.com">Talk to the team
+        <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+
+<div id="pg-pub" hidden>
+  <div class="page-head"><div class="wrap">
+    <p class="eyebrow">Publications</p>
+    <h1 class="grad">Research behind Epiread</h1>
+    <p>Selected work in epilepsy, EEG and clinical neurology from the Epiread team.</p>
+  </div></div>
+  <section class="sec" style="padding-top:0"><div class="wrap" id="pub-root"></div></section>
+</div>
+
+<div id="pg-privacy" hidden>
+  <div class="page-head"><div class="wrap">
+    <p class="eyebrow">Legal</p>
+    <h1 class="grad">Privacy notice</h1>
+    <p>What this site collects, and what happens when you write to us.</p>
+  </div></div>
+  <section class="sec" style="padding-top:0"><div class="wrap legal">
+    <p class="upd">Last updated 9 November 2026</p>
+    <section><h2>What we collect</h2><p>This site has no accounts, forms, cookies or analytics. Epiread Neurodiagnostics Private Limited does not collect personal data through it.</p></section>
+    <section><h2>Email</h2><p>If you write to hello@epireadneuro.com, we use your address and message only to reply and to keep a record of the conversation. We do not add you to mailing lists or share your details. Ask us at the same address to delete your messages at any time.</p></section>
+    <section><h2>Third party resources</h2><p>To display the page, your browser loads fonts from Google Fonts and animation scripts from cdnjs, which is operated by Cloudflare. Those providers receive your IP address and browser details when serving the files, under their own privacy policies. The service hosting this site may also keep standard request logs.</p></section>
+    <section><h2>Changes</h2><p>If the site starts collecting anything, for example through a contact form, this notice will be updated before that happens.</p></section>
+  </div></section>
+</div>
+
+<div id="pg-terms" hidden>
+  <div class="page-head"><div class="wrap">
+    <p class="eyebrow">Legal</p>
+    <h1 class="grad">Terms of use</h1>
+    <p>The conditions for using this site.</p>
+  </div></div>
+  <section class="sec" style="padding-top:0"><div class="wrap legal">
+    <p class="upd">Last updated 9 November 2026</p>
+    <section><h2>Research use only</h2><p>Epiread is in development. It is not approved as a medical device and must not be used to diagnose, treat or make clinical decisions about any patient.</p></section>
+    <section><h2>Figures on this site</h2><p>Performance figures come from internal validation and the studies cited next to them. They are provided for information and may change as validation continues.</p></section>
+    <section><h2>No warranty</h2><p>The site is provided as is, without warranty of any kind. To the extent permitted by law, Epiread Neurodiagnostics Private Limited is not liable for any loss arising from its use.</p></section>
+    <section><h2>Ownership</h2><p>The Epiread name, mark, text and software on this site belong to Epiread Neurodiagnostics Private Limited unless stated otherwise. Cited studies belong to their authors and publishers.</p></section>
+  </div></section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <a class="brand" data-page="home" href="#top">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="6" fill="var(--accent)"/><polyline points="3,11 6,11 7.5,8.5 9,14.5 10.6,4.5 12.2,13 13.6,11 17,11" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Epiread
+        </a>
+        <p class="entity">Epiread Neurodiagnostics Private Limited</p>
+        <p class="entity"><a href="mailto:hello@epireadneuro.com">hello@epireadneuro.com</a></p>
+      </div>
+      <nav aria-label="Footer">
+        <a data-go="problem" href="#problem">Problem</a>
+        <a data-go="approach" href="#approach">Approach</a>
+        <a data-go="how" href="#how">How it works</a>
+        <a data-go="team" href="#team">Team</a>
+        <a data-page="pub" href="#publications">Publications</a>
+      </nav>
+    </div>
+    <div class="foot-bot">
+      <span>&copy; 2026 Epiread Neurodiagnostics Private Limited</span>
+      <nav aria-label="Legal" style="display:flex;gap:16px"><a data-page="privacy" href="#privacy">Privacy</a><a data-page="terms" href="#terms">Terms</a></nav>
+      <span>For research and evaluation. Not for clinical diagnosis.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+var allPapers = [
+  { title:"A Real-World Clinical EEG Dataset and Interpretable Benchmarks for Interictal Epileptiform Discharge Detection", venue:"NeurIPS 2026, Datasets and Benchmarks Track", year:2026, status:"Under review", authors:"Adatia S, Baheti N et al." },
+  { title:"A Lightweight 1D-CNN Framework for Automated Seizure Detection from EEG Signals", venue:"47th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBS), Copenhagen", year:2025, authors:"Adatia S et al." },
+  { title:"Current practices in epilepsy monitoring units (EMU) in India", journal:"Seizure", year:2021, authors:"Baheti N et al." },
+  { title:"Treatment outcomes in drug resistant juvenile myoclonic epilepsy: Valproate resistance may not be the end of the road", journal:"Seizure", year:2021, authors:"Baheti N et al." },
+  { title:"Impact of COVID-19 pandemic on epilepsy practice in India: A tripartite survey", journal:"Seizure", year:2021, authors:"Baheti N et al." },
+  { title:"Early versus late antiepileptic drug withdrawal following temporal lobectomy", journal:"Seizure", year:2019, authors:"Baheti N et al." },
+  { title:"Establishment of low cost epilepsy surgery centers in resource poor setting", journal:"Seizure", year:2019, authors:"Baheti N et al." },
+  { title:"Outcome after seizure recurrence on antiepileptic drug withdrawal following temporal lobectomy", journal:"Neurology", year:2018, authors:"Baheti N et al." },
+  { title:"Optimal timing and differential significance of postoperative awake and sleep EEG to predict seizure outcome after temporal lobectomy", journal:"Clinical Neurophysiology", year:2018, authors:"Baheti N et al." },
+  { title:"Valproic Acid: A Summary of Indian Epilepsy Society Consensus Document", journal:"International Journal of Epilepsy", year:2016, authors:"Baheti N et al." },
+  { title:"“Eating” epilepsy revisited: an electro-clinico-radiological study", journal:"Journal of Clinical Neuroscience", year:2016, authors:"Baheti N et al." },
+  { title:"Atonic variant of benign childhood epilepsy with centrotemporal spikes (atonic-BECTS)", journal:"Brain and Development", year:2011, authors:"Baheti N et al." },
+  { title:"A critical appraisal on the utility of long-term video-EEG monitoring in older adults", journal:"Epilepsy Research", year:2011, authors:"Baheti N et al." },
+  { title:"Post-irradiation acquired cavernous angiomas with drug resistant seizures", journal:"Epilepsy Research", year:2011, authors:"Baheti N et al." },
+  { title:"Teaching Video NeuroImages: Epilepsy with myoclonic absences", journal:"Neurology", year:2011, authors:"Baheti N et al." },
+  { title:"Oxcarbazepine induced worsening of seizures in Jeavons syndrome", journal:"Neurology India", year:2011, authors:"Baheti N et al." },
+  { title:"Teaching Video NeuroImages: Hypothalamic hamartoma", journal:"Neurology", year:2011, authors:"Baheti N et al." }
+];
+var bahetiScholar = "https://scholar.google.co.in/citations?hl=en&user=jw628tcAAAAJ";
+var ICON_UPRIGHT = '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg>';
+
+function renderPubs() {
+  var h = '<div class="pub-header"><h3>All publications</h3><a href="' + bahetiScholar + '" target="_blank" rel="noopener">Dr. Baheti on Google Scholar ' + ICON_UPRIGHT + '</a></div><div class="pgrid">';
+  allPapers.forEach(function(p) {
+    var src = p.venue || p.journal;
+    var body = '<div class="pc-yr">' + p.year + '</div><div><div class="pc-t">' + p.title + '</div><div class="pc-m">' + src + (p.status ? '<span class="pc-s">' + p.status + '</span>' : '') + '</div><div class="pc-a">' + p.authors + '</div></div>';
+    if (p.status) {
+      h += '<div class="pc">' + body + '<span></span></div>';
+    } else {
+      var u = "https://scholar.google.com/scholar?q=" + encodeURIComponent(p.title);
+      h += '<a class="pc" href="' + u + '" target="_blank" rel="noopener">' + body + '<span class="pc-go">' + ICON_UPRIGHT + '</span></a>';
+    }
+  });
+  document.getElementById('pub-root').innerHTML = h + '</div>';
+}
+renderPubs();
+
+var pageIds = { home: 'pg-home', pub: 'pg-pub', privacy: 'pg-privacy', terms: 'pg-terms' };
+var currentPage = 'home';
+var menuEl = document.getElementById('menu');
+var burgerEl = document.querySelector('.burger');
+
+function setMenu(open) {
+  menuEl.classList.toggle('open', open);
+  menuEl.setAttribute('aria-hidden', open ? 'false' : 'true');
+  burgerEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+  burgerEl.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  document.documentElement.style.overflow = open ? 'hidden' : '';
+}
+burgerEl.addEventListener('click', function() { setMenu(!menuEl.classList.contains('open')); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && menuEl.classList.contains('open')) { setMenu(false); burgerEl.focus(); } });
+
+function markNav(key) {
+  document.querySelectorAll('.links a, .menu a').forEach(function(a) {
+    var on = !!key && (a.getAttribute('data-page') === key || a.getAttribute('data-go') === key);
+    if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+  });
+}
+
+function showPage(key) {
+  currentPage = key;
+  Object.keys(pageIds).forEach(function(k) { document.getElementById(pageIds[k]).hidden = (k !== key); });
+  document.querySelector('.foot').hidden = (key === 'demo');
+  setMenu(false);
+  window.scrollTo(0, 0);
+  markNav(key === 'home' ? null : key);
+  if (key === 'home' && window.ScrollTrigger) window.ScrollTrigger.refresh();
+}
+
+function goTo(id, instant) {
+  if (currentPage !== 'home') showPage('home'); else setMenu(false);
+  requestAnimationFrame(function() {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var y = el.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo({ top: y, behavior: instant || reduceMotion.matches ? 'auto' : 'smooth' });
+  });
+}
+
+var hashPages = { publications: 'pub', privacy: 'privacy', terms: 'terms' };
+var hashSections = ['problem', 'approach', 'how', 'team', 'faq'];
+
+function route(instant) {
+  var h = location.hash.replace('#', '');
+  if (hashPages[h]) showPage(hashPages[h]);
+  else if (hashSections.indexOf(h) >= 0) goTo(h, instant);
+  else if (currentPage !== 'home') showPage('home');
+}
+
+function setHash(href) {
+  var target = href === '#top' ? location.pathname + location.search : href;
+  if (target === location.hash || (href === '#top' && !location.hash)) return;
+  try { history.pushState(null, '', target); } catch (err) {}
+}
+
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('[data-page], [data-go]');
+  if (!a) return;
+  e.preventDefault();
+  setHash(a.getAttribute('href') || '#top');
+  if (a.hasAttribute('data-page')) showPage(a.getAttribute('data-page'));
+  else goTo(a.getAttribute('data-go'));
+});
+window.addEventListener('popstate', function() { route(true); });
+route(true);
+
+if ('IntersectionObserver' in window) {
+  var spy = new IntersectionObserver(function(entries) {
+    if (currentPage !== 'home') return;
+    entries.forEach(function(en) { if (en.isIntersecting) markNav(en.target.id); });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  ['problem', 'approach', 'how', 'team', 'faq'].forEach(function(id) { spy.observe(document.getElementById(id)); });
+  new IntersectionObserver(function(entries) {
+    if (currentPage === 'home' && entries[0].isIntersecting) markNav(null);
+  }, { rootMargin: '-45% 0px -50% 0px' }).observe(document.getElementById('top'));
+}
+
+(function heroScope() {
+  var cv = document.getElementById('hero-eeg');
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
+  var CH = ['Fp1-F7', 'F7-T3', 'T3-T5', 'T5-O1', 'Fp2-F8', 'F8-T4', 'T4-T6', 'T6-O2'];
+  var SG = [-0.28, -1, 1, 0.22, 0.04, 0.05, 0.04, 0.03];
+  var BG = [1, 0.16, 0.02, 0, 0.95, 0.14, 0.02, 0];
+  var ALPHA = [0.25, 0.35, 0.6, 1, 0.25, 0.35, 0.6, 1];
+  var WIN = 10, CUR = 0.72, SPEED = 1.35, SLOT = 2.9;
+  var C = {}, W = 0, H = 0, dpr = 1, T = 0, last = 0, raf = 0, onScreen = true, hoverX = -1;
+  var cache = {}, cacheN = 0;
+  var flagEl = document.getElementById('sc-flag'), artEl = document.getElementById('sc-art');
+  var shownFlag = -1, shownArt = -1;
+
+  function readColors() {
+    var s = getComputedStyle(document.documentElement);
+    ['trace', 'trace-dim', 'grid', 'grid-2', 'detect', 'detect-soft', 'text-3', 'text-2', 'surface', 'accent', 'mono'].forEach(function(k) {
+      C[k] = s.getPropertyValue('--' + k).trim();
+    });
+  }
+  function hh(i) {
+    var x = Math.imul((i | 0) ^ 0x2545F491, 0x9E3779B1);
+    x ^= x >>> 15; x = Math.imul(x, 0x85EBCA77);
+    x ^= x >>> 13; x = Math.imul(x, 0xC2B2AE3D);
+    x ^= x >>> 16;
+    return (x >>> 0) / 4294967295 * 2 - 1;
+  }
+  function vn(t, seed, f) {
+    var u = t * f, i = Math.floor(u), fr = u - i, s = fr * fr * (3 - 2 * fr);
+    var a = hh(i * 131 + seed * 7919), b = hh((i + 1) * 131 + seed * 7919);
+    return a + (b - a) * s;
+  }
+  function ev(k) {
+    if (k < 1) return null;
+    if (cache[k] !== undefined) return cache[k];
+    if (cacheN > 400) { cache = {}; cacheN = 0; }
+    var r = (hh(k * 977 + 11) + 1) / 2;
+    var type = r < 0.2 ? 'blink' : (r < 0.86 ? 'spike' : null);
+    var e = type ? {
+      type: type,
+      te: k * SLOT + 0.5 + (hh(k * 613 + 5) + 1) / 2 * (SLOT - 1),
+      p: 0.81 + (hh(k * 389 + 3) + 1) / 2 * 0.16,
+      amp: 0.85 + (hh(k * 211 + 9) + 1) / 2 * 0.4
+    } : null;
+    cache[k] = e; cacheN++;
+    return e;
+  }
+  function spikeW(d) {
+    return -2.4 * Math.exp(-Math.pow(d / 0.016, 2)) + 0.7 * Math.exp(-Math.pow((d - 0.03) / 0.02, 2)) + 1.05 * Math.exp(-Math.pow((d - 0.17) / 0.065, 2));
+  }
+  function blinkW(d) { return 3.2 * Math.exp(-Math.pow((d - 0.16) / 0.1, 2)); }
+  function sig(c, t) {
+    var v = ALPHA[c] * 0.55 * Math.sin(6.2832 * 10.1 * t + c * 1.7 + vn(t, c + 3, 0.4) * 2) * (0.55 + 0.45 * vn(t, c + 11, 0.6));
+    v += 0.42 * vn(t, c + 21, 5) + 0.26 * vn(t, c + 31, 13) + 0.12 * vn(t, c + 41, 31);
+    v += 0.22 * Math.sin(6.2832 * 5.3 * t + c) * vn(t, c + 51, 0.5);
+    var k = Math.floor(t / SLOT);
+    for (var j = k - 1; j <= k + 1; j++) {
+      var e = ev(j);
+      if (!e) continue;
+      var d = t - e.te;
+      if (d < -0.15 || d > 0.6) continue;
+      v += e.type === 'spike' ? SG[c] * e.amp * spikeW(d) : BG[c] * blinkW(d);
+    }
+    return v;
+  }
+  function ease(p) { p = Math.max(0, Math.min(1, p)); return 1 - Math.pow(1 - p, 3); }
+  function fmt(s) {
+    s = Math.max(0, s);
+    var m = Math.floor(s / 60), r = Math.floor(s % 60);
+    return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function layout() {
+    var r = cv.getBoundingClientRect();
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = r.width; H = r.height;
+    cv.width = Math.max(1, Math.round(W * dpr));
+    cv.height = Math.max(1, Math.round(H * dpr));
+  }
+
+  function draw() {
+    if (!W || !H) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    var narrow = W < 560;
+    var lab = narrow ? 64 : 80, padT = 32, padB = 28, gapMid = 8;
+    var x0 = lab, x1 = W - 16, pw = x1 - x0;
+    var rowH = (H - padT - padB - gapMid) / CH.length;
+    var amp = rowH * 0.24;
+    var t0 = T - CUR * WIN;
+    var curX = x0 + CUR * pw;
+    var top = padT - 8, bottom = H - padB;
+    function xAt(t) { return x0 + (t - t0) / WIN * pw; }
+    function yOf(c) { return padT + rowH * (c + 0.5) + (c >= 4 ? gapMid : 0); }
+
+    ctx.fillStyle = C.grid;
+    ctx.fillRect(curX, top, x1 - curX, bottom - top);
+
+    ctx.font = '12px ' + C.mono;
+    ctx.textBaseline = 'alphabetic';
+    for (var s = Math.ceil(t0); s <= t0 + WIN; s++) {
+      var gx = Math.round(xAt(s)) + 0.5;
+      if (gx < x0 || gx > x1) continue;
+      ctx.strokeStyle = s % 5 === 0 ? C['grid-2'] : C.grid;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(gx, top); ctx.lineTo(gx, bottom); ctx.stroke();
+      if (s % (narrow ? 4 : 2) === 0) {
+        ctx.fillStyle = C['text-3'];
+        ctx.textAlign = 'center';
+        ctx.fillText(fmt(s), gx, H - 8);
+      }
+    }
+
+    var recent = null;
+    var kA = Math.floor(t0 / SLOT) - 1, kB = Math.floor((t0 + WIN) / SLOT) + 1;
+    var labels = [];
+    for (var k = kA; k <= kB; k++) {
+      var e = ev(k);
+      if (!e || e.te > T) continue;
+      var age = T - e.te, a = ease(age / 0.45);
+      var bx0 = xAt(e.te - 0.14), bx1 = xAt(e.te + 0.36);
+      if (bx1 < x0) continue;
+      bx0 = Math.max(bx0, x0);
+      if (e.type === 'spike') {
+        ctx.globalAlpha = a;
+        ctx.fillStyle = C['detect-soft'];
+        ctx.fillRect(bx0, top, bx1 - bx0, bottom - top);
+        ctx.globalAlpha = 1;
+        labels.push({ x: bx0, a: a, text: narrow ? 'p ' + e.p.toFixed(2) : 'IED  p ' + e.p.toFixed(2), col: C.detect, band: [bx0, Math.min(bx1, curX)] });
+        if (age < 2.4 && (!recent || e.te > recent.te)) recent = { te: e.te, a: a * (1 - ease((age - 1.6) / 0.8)), band: [bx0, Math.min(bx1, curX)] };
+      } else {
+        labels.push({ x: bx0, a: a * 0.9, text: narrow ? 'blink' : 'Blink  not flagged', col: C['text-3'] });
+      }
+    }
+
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    var step = 1;
+    for (var c = 0; c < CH.length; c++) {
+      var yc = yOf(c);
+      ctx.lineWidth = 1.25;
+      ctx.strokeStyle = C.trace;
+      ctx.beginPath();
+      for (var x = x0; x <= curX; x += step) {
+        var y = yc + sig(c, t0 + (x - x0) / pw * WIN) * amp;
+        if (x === x0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = C['trace-dim'];
+      ctx.beginPath();
+      for (var xx = Math.floor(curX); xx <= x1; xx += step) {
+        var yy = yc + sig(c, t0 + (xx - x0) / pw * WIN) * amp;
+        if (xx === Math.floor(curX)) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+      }
+      ctx.stroke();
+    }
+
+    if (recent && recent.a > 0.01) {
+      ctx.globalAlpha = recent.a;
+      ctx.strokeStyle = C.detect;
+      ctx.lineWidth = 1.75;
+      [1, 2].forEach(function(c) {
+        var yc = yOf(c);
+        ctx.beginPath();
+        for (var x = recent.band[0]; x <= recent.band[1]; x += step) {
+          var y = yc + sig(c, t0 + (x - x0) / pw * WIN) * amp;
+          if (x === recent.band[0]) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (var c2 = 0; c2 < CH.length; c2++) {
+      var hot = recent && recent.a > 0.01 && (c2 === 1 || c2 === 2);
+      ctx.fillStyle = C['text-3'];
+      ctx.fillText(CH[c2], lab - 12, yOf(c2));
+      if (hot) {
+        ctx.globalAlpha = recent.a;
+        ctx.fillStyle = C.detect;
+        ctx.fillText(CH[c2], lab - 12, yOf(c2));
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    labels.forEach(function(l) {
+      if (l.a <= 0.01) return;
+      ctx.globalAlpha = l.a;
+      var tw = ctx.measureText(l.text).width;
+      var lx = Math.min(l.x, x1 - tw - 8);
+      ctx.fillStyle = C.surface;
+      ctx.fillRect(lx, 8, tw + 8, 16);
+      ctx.fillStyle = l.col;
+      ctx.fillText(l.text, lx + 4, 16);
+      ctx.globalAlpha = 1;
+    });
+
+    ctx.strokeStyle = C.accent;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(Math.round(curX) + 0.5, top); ctx.lineTo(Math.round(curX) + 0.5, bottom); ctx.stroke();
+    ctx.fillStyle = C.accent;
+    ctx.beginPath(); ctx.arc(Math.round(curX) + 0.5, top, 3, 0, 6.2832); ctx.fill();
+
+    if (hoverX >= x0 && hoverX <= x1) {
+      var ht = t0 + (hoverX - x0) / pw * WIN;
+      ctx.strokeStyle = C['text-2'];
+      ctx.globalAlpha = 0.5;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(Math.round(hoverX) + 0.5, top); ctx.lineTo(Math.round(hoverX) + 0.5, bottom); ctx.stroke();
+      ctx.globalAlpha = 1;
+      var txt = fmt(ht) + '.' + Math.floor((ht % 1) * 10);
+      ctx.textAlign = 'left';
+      var w2 = ctx.measureText(txt).width;
+      var hx = Math.min(hoverX + 8, x1 - w2 - 8);
+      ctx.fillStyle = C.surface;
+      ctx.fillRect(hx, bottom - 24, w2 + 8, 16);
+      ctx.fillStyle = C['text-2'];
+      ctx.fillText(txt, hx + 4, bottom - 16);
+    }
+  }
+
+  function counts() {
+    var f = 0, b = 0, kMax = Math.floor(T / SLOT) + 1;
+    for (var k = 1; k <= kMax; k++) {
+      var e = ev(k);
+      if (!e || e.te > T) continue;
+      if (e.type === 'spike') f++; else b++;
+    }
+    if (f !== shownFlag) { flagEl.textContent = f; shownFlag = f; }
+    if (b !== shownArt) { artEl.textContent = b; shownArt = b; }
+  }
+
+  function frame(now) {
+    raf = 0;
+    var dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+    last = now;
+    T += dt * SPEED;
+    draw();
+    counts();
+    if (onScreen && !document.hidden && !reduceMotion.matches) raf = requestAnimationFrame(frame);
+  }
+  function start() {
+    if (raf || reduceMotion.matches || !onScreen || document.hidden) return;
+    last = 0;
+    raf = requestAnimationFrame(frame);
+  }
+  function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+  for (var k0 = 1; k0 < 50; k0++) {
+    var e0 = ev(k0);
+    if (e0 && e0.type === 'spike' && e0.te > 3.5) { T = e0.te + 1.1; break; }
+  }
+
+  readColors();
+  layout();
+  draw();
+  counts();
+
+  if ('ResizeObserver' in window) new ResizeObserver(function() { layout(); draw(); }).observe(cv);
+  else window.addEventListener('resize', function() { layout(); draw(); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(en) {
+      onScreen = en[0].isIntersecting;
+      if (onScreen) start(); else stop();
+    }).observe(cv);
+  }
+  document.addEventListener('visibilitychange', function() { if (document.hidden) stop(); else start(); });
+  var onMotion = function() { if (reduceMotion.matches) { stop(); draw(); } else start(); };
+  if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', onMotion);
+  var schemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+  var onTheme = function() { readColors(); draw(); };
+  if (schemeMq.addEventListener) schemeMq.addEventListener('change', onTheme);
+  new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function() { draw(); });
+  cv.addEventListener('pointermove', function(e) {
+    if (e.pointerType !== 'mouse') return;
+    var r = cv.getBoundingClientRect();
+    hoverX = e.clientX - r.left;
+    if (!raf) draw();
+  });
+  cv.addEventListener('pointerleave', function() { hoverX = -1; if (!raf) draw(); });
+  window.addEventListener('blur', function() { hoverX = -1; if (!raf) draw(); });
+  start();
+})();
+
+(function motion() {
+  if (!window.gsap || !window.ScrollTrigger || reduceMotion.matches) return;
+  var gsap = window.gsap;
+  gsap.registerPlugin(window.ScrollTrigger);
+
+  var tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 1.1 } });
+  tl.from('.pill', { y: -16, opacity: 0.4, duration: 0.9 }, 0)
+    .from('.hero .eyebrow', { y: 12, opacity: 0.4 }, 0.05)
+    .from('.hero h1 .line', { y: 28, opacity: 0.35, filter: 'blur(6px)', stagger: 0.08, clearProps: 'filter' }, 0.08)
+    .from('.hero .sub', { y: 20, opacity: 0.4 }, 0.22)
+    .from('.hero .cta-row', { y: 16, opacity: 0.4 }, 0.3)
+    .from('.scope', { y: 32, scale: 0.985, opacity: 0.5, transformOrigin: '50% 0%' }, 0.34);
+
+  var tag = document.getElementById('tag-text');
+  var words = tag.textContent.trim().split(/\s+/);
+  var accentFrom = words.length - 3;
+  tag.innerHTML = '<span class="sr-only">' + tag.textContent.trim() + '</span><span aria-hidden="true">' +
+    words.map(function(w, i) { return '<span class="w' + (i >= accentFrom ? ' ac' : '') + '">' + w + '</span>'; }).join(' ') + '</span>';
+  gsap.fromTo('.tagline .w', { opacity: 0.28 }, {
+    opacity: 1, ease: 'power2.out', stagger: 0.12,
+    scrollTrigger: { trigger: '.tagline', start: 'top 72%', end: 'bottom 62%', scrub: 0.6 }
+  });
+
+  document.querySelectorAll('[data-reveal]').forEach(function(el) {
+    if (el.getBoundingClientRect().top < window.innerHeight * 0.92) return;
+    gsap.from(el, {
+      y: 40, opacity: 0.5, duration: 1.1, ease: 'expo.out',
+      scrollTrigger: { trigger: el, start: 'top 92%', once: true }
+    });
+  });
+})();
+</script>
+</body>
+</html>
